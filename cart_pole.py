@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
-from tkinter import * 
+from tkinter import *
+from math import * 
 # procédure générale de déplacement : 
 def avance(gd, hb): 
 	global x1, y1, xrect1, yrect1, widthrect1, heightrect1 
 	x1, y1 = x1 +gd, y1 +hb 
 	can1.coords(oval1, x1, y1, x1+30, y1+30)
+	can1.coords(line2, x1+15,y1+15,xrect1+(widthrect1/2),yrect1)
+	
+def avance_all_cartesian(x, theta, length): 
+	global x1, y1, xrect1, yrect1, widthrect1, heightrect1 
+	x1 = 40*cos(theta)
+	y1 = 40*sin(theta)
+	can1.coords(oval1, x1, y1, x1+30, y1+30)
+	xrect1 += x
+	can1.coords(rect1,xrect1, yrect1, xrect1+widthrect1, yrect1+heightrect1)
 	can1.coords(line2, x1+15,y1+15,xrect1+(widthrect1/2),yrect1)
 
 def avance_cart(gd, hb):
@@ -12,15 +22,47 @@ def avance_cart(gd, hb):
 	xrect1, yrect1 = xrect1 +gd, yrect1 +hb
 	can1.coords(rect1,xrect1, yrect1, xrect1+widthrect1, yrect1+heightrect1)
 	can1.coords(line2, x1+15,y1+15,xrect1+(widthrect1/2),yrect1)
+
+def show_info():
+	global x, x_dot, theta, theta_dot
+	print('cart deplacement : ',x,' stick angle : ',theta,'\n')
+	print('x ball : ',x1+15,' y ball : ',y1+15,'\n')
+	fen1.after(1000, show_info)
+
+def physic_sim(action):
+	g = 9.81
+	mass_cart = 1.0
+	mass_pole = 0.1
+	total_mass = mass_cart+mass_pole
+	length_cable = 0.5
+	pole_mass_length = mass_pole * length_cable
+	force_magnitude = 10.0
+	#action = 1 # depend d'une autre fonction
+	force = action * force_magnitude
+	tau = 0.02 # pas d'integration
+	global x, x_dot, theta, theta_dot
+	temp = (force + pole_mass_length * pow(theta_dot,2) * sin(theta))/total_mass
+	theta_accel = (g*sin(theta)-cos(theta)*temp)/(length_cable*(4/3-mass_pole*pow(cos(theta),2)/total_mass))
+	x_accel = temp-pole_mass_length*theta_accel*cos(theta)/total_mass
+	# --- update_state_variable ---  #
+	x += tau*x_dot
+	x_dot += tau*x_accel
+	theta += tau*theta_dot
+	theta_dot += tau*theta_accel
+	avance_all_cartesian(x,theta, length_cable)
+	fen1.after(100, physic_sim,0)
+
 # gestionnaires d'événements : 
 def depl_gauche(): 
 	avance(-10, 0)
 def depl_cart_gauche():
-	avance_cart(-10,0) 
+	avance_cart(-10,0)
+	physic_sim(-0.2) 
 def depl_droite(): 
 	avance(10, 0)
 def depl_cart_droite():
-	avance_cart(10,0)  
+	avance_cart(10,0)
+	physic_sim(0.2)  
 def depl_haut(): 
 	avance(0, -10) 
 def depl_bas(): 
@@ -36,9 +78,11 @@ def clavier(event):
 	elif touche == "Down":
 		depl_bas()
 #------ Programme principal ------- # les variables suivantes seront utilisées de manière globale : 
-x1, y1 = 10, 10
-xrect1, yrect1 = 100, 200
-widthrect1, heightrect1 = 80, 50  
+x1, y1 = 135, 100
+xrect1, yrect1 = 110, 200
+widthrect1, heightrect1 = 80, 50
+x, x_dot, theta, theta_dot = 0,0,0,0.1
+  
 # coordonnées initiales # Création du widget principal ("maître") : 
 fen1 = Tk() 
 fen1.title("Pendule inversé v0.1") 
@@ -57,4 +101,7 @@ Button(fen1,text='Droite',command=depl_droite).pack()
 Button(fen1,text='Haut',command=depl_haut).pack() 
 Button(fen1,text='Bas',command=depl_bas).pack() 
 # démarrage du réceptionnaire d'évènements (boucle principale) : 
+fen1.after(100, physic_sim, 0)
+fen1.after(1000, show_info)
 fen1.mainloop()
+
