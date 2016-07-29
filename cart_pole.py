@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from tkinter import *
 from math import * 
+import random
 # procédure générale de déplacement : 
+
 def avance(gd, hb): 
 	global x1, y1, xrect1, yrect1, widthrect1, heightrect1 
 	x1, y1 = x1 +gd, y1 +hb 
@@ -83,6 +85,9 @@ xrect1, yrect1 = 110, 200
 widthrect1, heightrect1 = 80, 50
 x1, y1 = xrect1 + widthrect1/2, yrect1 - 30
 x, x_dot, theta, theta_dot = 0,0,0,0
+x,	 x_dot, theta, theta_dot = 0,0,0,0
+
+
   
 # coordonnées initiales # Création du widget principal ("maître") : 
 fen1 = Tk() 
