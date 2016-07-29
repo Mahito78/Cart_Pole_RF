@@ -11,14 +11,14 @@ def avance(gd, hb):
 	can1.coords(line2, x1+15,y1+15,xrect1+(widthrect1/2),yrect1)
 	
 def avance_all_cartesian(x, theta, length):
-	#theta -= pi/2 
+	theta -= pi/2 
 	global x1, y1, xrect1, yrect1, widthrect1, heightrect1 
 	xrect1 += x
 	can1.coords(rect1,xrect1, yrect1, xrect1+widthrect1, yrect1+heightrect1)
-	x1 = (xrect1 + widthrect1/2)+10*cos(theta)
-	y1 = (yrect1 - 30)+10*sin(theta)
-	can1.coords(oval1, x1, y1, x1+30, y1+30)
-	can1.coords(line2, x1+15,y1+15,xrect1+(widthrect1/2),yrect1)
+	x1 = (xrect1 + widthrect1/2)+80*cos(theta)
+	y1 = (yrect1)+80*sin(theta)
+	can1.coords(oval1, x1-15, y1-15, x1+15, y1+15)
+	can1.coords(line2, x1,y1,xrect1+(widthrect1/2),yrect1)
 
 def avance_cart(gd, hb):
 	global x1, y1, xrect1, yrect1, widthrect1, heightrect1 
@@ -48,7 +48,7 @@ def physic_sim(action):
 	theta_accel = (g*sin(theta)-cos(theta)*temp)/(length_cable*(4/3-mass_pole*pow(cos(theta),2)/total_mass))
 	x_accel = temp-pole_mass_length*theta_accel*cos(theta)/total_mass
 	# --- update_state_variable ---  #
-	x_dot += tau*x_accel
+	x_dot = x_dot + tau*x_accel
 	x += tau*x_dot
 	theta_dot += tau*theta_accel
 	theta += tau*theta_dot
