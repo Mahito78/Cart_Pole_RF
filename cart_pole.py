@@ -8,13 +8,14 @@ def avance(gd, hb):
 	can1.coords(oval1, x1, y1, x1+30, y1+30)
 	can1.coords(line2, x1+15,y1+15,xrect1+(widthrect1/2),yrect1)
 	
-def avance_all_cartesian(x, theta, length): 
+def avance_all_cartesian(x, theta, length):
+	#theta -= pi/2 
 	global x1, y1, xrect1, yrect1, widthrect1, heightrect1 
-	x1 = 40*cos(theta)
-	y1 = 40*sin(theta)
-	can1.coords(oval1, x1, y1, x1+30, y1+30)
 	xrect1 += x
 	can1.coords(rect1,xrect1, yrect1, xrect1+widthrect1, yrect1+heightrect1)
+	x1 = (xrect1 + widthrect1/2)+10*cos(theta)
+	y1 = (yrect1 - 30)+10*sin(theta)
+	can1.coords(oval1, x1, y1, x1+30, y1+30)
 	can1.coords(line2, x1+15,y1+15,xrect1+(widthrect1/2),yrect1)
 
 def avance_cart(gd, hb):
@@ -39,16 +40,16 @@ def physic_sim(action):
 	force_magnitude = 10.0
 	#action = 1 # depend d'une autre fonction
 	force = action * force_magnitude
-	tau = 0.02 # pas d'integration
+	tau = 0.01 # pas d'integration
 	global x, x_dot, theta, theta_dot
 	temp = (force + pole_mass_length * pow(theta_dot,2) * sin(theta))/total_mass
 	theta_accel = (g*sin(theta)-cos(theta)*temp)/(length_cable*(4/3-mass_pole*pow(cos(theta),2)/total_mass))
 	x_accel = temp-pole_mass_length*theta_accel*cos(theta)/total_mass
 	# --- update_state_variable ---  #
-	x += tau*x_dot
 	x_dot += tau*x_accel
-	theta += tau*theta_dot
+	x += tau*x_dot
 	theta_dot += tau*theta_accel
+	theta += tau*theta_dot
 	avance_all_cartesian(x,theta, length_cable)
 	fen1.after(100, physic_sim,0)
 
@@ -78,10 +79,10 @@ def clavier(event):
 	elif touche == "Down":
 		depl_bas()
 #------ Programme principal ------- # les variables suivantes seront utilisées de manière globale : 
-x1, y1 = 135, 100
 xrect1, yrect1 = 110, 200
 widthrect1, heightrect1 = 80, 50
-x, x_dot, theta, theta_dot = 0,0,0,0.1
+x1, y1 = xrect1 + widthrect1/2, yrect1 - 30
+x, x_dot, theta, theta_dot = 0,0,0,0
   
 # coordonnées initiales # Création du widget principal ("maître") : 
 fen1 = Tk() 
