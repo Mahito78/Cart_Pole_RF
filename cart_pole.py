@@ -2,6 +2,7 @@
 from tkinter import *
 from math import * 
 import random
+from settings import *
 # procédure générale de déplacement : 
 
 def avance(gd, hb): 
@@ -29,10 +30,11 @@ def avance_cart(gd, hb):
 def show_info():
 	global x, x_dot, theta, theta_dot, action
 	print('cart deplacement : ',x,' stick angle : ',theta,'\n')
-	print('x ball : ',x1+15,' y ball : ',y1+15,' action : ', action, '\n')
+	#print('x ball : ',x1+15,' y ball : ',y1+15,' action : ', action, '\n')
 	fen1.after(1000, show_info)
 
 def physic_sim():
+	global x, x_dot, theta, theta_dot
 	g = 9.81
 	mass_cart = 1.0
 	mass_pole = 0.1
@@ -40,13 +42,18 @@ def physic_sim():
 	length_cable = 0.5
 	pole_mass_length = mass_pole * length_cable
 	force_magnitude = 10.0
-	global action# depend d'une autre fonction
-	force = action * force_magnitude
-	tau = 0.03 # pas d'integration
-	global x, x_dot, theta, theta_dot
+	tau = 0.02 # pas d'integration
+
+	#global action# depend d'une autre fonction
+	if action >0:
+		force = force_magnitude
+	else:	
+		force = -force_magnitude
+	#force = action * force_magnitude
 	temp = (force + pole_mass_length * pow(theta_dot,2) * sin(theta))/total_mass
 	theta_accel = (g*sin(theta)-cos(theta)*temp)/(length_cable*(4/3-mass_pole*pow(cos(theta),2)/total_mass))
 	x_accel = temp-pole_mass_length*theta_accel*cos(theta)/total_mass
+
 	# --- update_state_variable ---  #
 	x_dot = x_dot + tau*x_accel
 	x += tau*x_dot
@@ -54,7 +61,6 @@ def physic_sim():
 	theta += tau*theta_dot
 	avance_all_cartesian(x,theta, length_cable)
 	fen1.after(50, physic_sim)
-	print('action = ', action, '\n')
 	
 # gestionnaires d'événements : 
 def depl_gauche(): 
@@ -84,23 +90,6 @@ def clavier(event):
 	elif touche == "Down":
 		depl_bas()
 #------ Programme principal ------- # les variables suivantes seront utilisées de manière globale : 
-action = 0
-height = 800
-width = 1000
-widthrect1, heightrect1 = 80, 50
-xrect1, yrect1 = (width/2)-(widthrect1/2), 3*(height/4)-(heightrect1/2)
-x1, y1 = xrect1 + widthrect1/2, yrect1 - 30
-x, x_dot, theta, theta_dot = 0,0,0,0.001
-
-'''w = []
-v = []
-w_eligibilities = []
-v_eligibilities = []
-for i in range(0, NB_ZONES):
-	w.append(0)
-	v.append(0)
-	w_eligibilities.append(0)
-	v_eligibilities.append(0)'''
 
   
 # coordonnées initiales # Création du widget principal ("maître") : 
