@@ -2,27 +2,39 @@
 import numpy as np
 import random
 from math import *
-from cart_pole import * 
-from settings import *
+from cart_pole import *
 	# avance_all_cartesian(x,theta, length_cable)
 	# fen1.after(100, physic_sim,0)
+NB_ZONES = 162
+ALPHA = 1000 #learning rate for actions weights w
+BETA = 0.5 #learning rate for critic weights v
+GAMMA =0.95 #discount factor for critic (between 0 and 1)
+LAMBDAw=0.9 #Decay rate for w 
+LAMBDAv=0.8 #Decray rate for v
 
+MAX_FAILS =200
+MAX_SUCCES = 1000000
+w = []
+v = []
+w_eligibilities = []
+v_eligibilities = []
+NB_ZONES=162
 for i in range(0, NB_ZONES):
 	w.append(0)
 	v.append(0)
 	w_eligibilities.append(0)
 	v_eligibilities.append(0)
 
+
 def reset():
-	global x,x_dot,theta,theta_dot
 	x,x_dot,theta,theta_dot = (0.0,0.0,0.0,0.0)
+	return [x,x_dot,theta,theta_dot]
 
 def random_selection(state): # to modify to include biased weight of current state
 	return (1/(1+exp(-max(-50,min(state,50)))))
 def rand():
 	return random.random()
-def states():
-	global x,x_dot,theta,theta_dot
+def states(x,x_dot,theta,theta_dot):
 	one_degree = 0.0174532
 	six_degrees = 0.1047192
 	twelve_degrees = 0.2094384
@@ -73,31 +85,36 @@ def states():
 # else:
 # 	force = -force_magnitude
 
-def episode():
+def episode(x,x_dot,theta,theta_dot):
 	global w,v,w_eligibilities,v_eligibilities
-	global action
 	steps = 0
 	fails = 0
-	zone=states()
-	while(steps<10 or fails<MAX_FAILS):
+	nb_presentation=0
+	zone=states(x,x_dot,theta,theta_dot)
+	while(steps<10000 and fails<MAX_FAILS):
 		steps+=1
 		y=rand()<random_selection(w[zone]) # y=heuristic = action
-		action =y 
+		if(y==True) : 
+			action = 1
+		else: 
+			action = -1
 		w_eligibilities[zone]+=(1.0- LAMBDAw)*(y-0.5)
 		v_eligibilities[zone]+=(1.0- LAMBDAv)
 		store=v[zone]
-		#cart_pole.physic_sim()#call cart pole
-		zone=states()
+		[x,x_dot,theta,theta_dot]=physic_sim(action,x, x_dot, theta, theta_dot)#call cart pole
+		zone=states(x,x_dot,theta,theta_dot)
 		if(zone<0):
 			fails+=1 ;
 			failed = True
-			reset()
-			zone=states()
+			print(steps)
+			steps=0
+			[x,x_dot,theta,theta_dot]=reset()
+			zone=states(x,x_dot,theta,theta_dot)
 			r=-1.0
 			p=0.0
 		else:
 			failed=False 
-			r=0 ;
+			r=0
 			p=v[zone]
 
 		#Heuristic reinforcement
@@ -107,18 +124,11 @@ def episode():
 		for i in range(0, NB_ZONES,1):
 			w[i]+=ALPHA*heuristic_reinforcement*w_eligibilities[i]
 			v[i]+=BETA*heuristic_reinforcement*v_eligibilities[i]
-		#if(v[i]<(-1.0)):
-			#v[i]=v
+			if(v[i]<(-1.0)):
+				v[i]=v[i]
 			if(failed):
 				w_eligibilities[i]=0.0
 				v_eligibilities[i]=0.0
 			else:
 				w_eligibilities[i]*=LAMBDAw
 				v_eligibilities[i]*=LAMBDAv
-				
-		return y
-
-
-
-for i in range(0,1000,1):
-	episode()
