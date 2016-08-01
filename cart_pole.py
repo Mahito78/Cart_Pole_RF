@@ -2,7 +2,6 @@
 from tkinter import *
 from math import * 
 import random
-from settings import *
 # procédure générale de déplacement : 
 
 def avance(gd, hb): 
@@ -29,12 +28,11 @@ def avance_cart(gd, hb):
 
 def show_info():
 	global x, x_dot, theta, theta_dot, action
-	print('cart deplacement : ',x,' stick angle : ',theta,'\n')
+	print('cart deplacement : ',x,' stick angle : ',theta,'action',action,'\n')
 	#print('x ball : ',x1+15,' y ball : ',y1+15,' action : ', action, '\n')
 	fen1.after(1000, show_info)
 
-def physic_sim():
-	global x, x_dot, theta, theta_dot
+def physic_sim(action,x, x_dot, theta, theta_dot):
 	g = 9.81
 	mass_cart = 1.0
 	mass_pole = 0.1
@@ -45,11 +43,11 @@ def physic_sim():
 	tau = 0.02 # pas d'integration
 
 	#global action# depend d'une autre fonction
-	if action >0:
-		force = force_magnitude
-	else:	
-		force = -force_magnitude
-	#force = action * force_magnitude
+	# if action >0:
+	# 	force = force_magnitude
+	# else:	
+	# 	force = -force_magnitude
+	force = action * force_magnitude
 	temp = (force + pole_mass_length * pow(theta_dot,2) * sin(theta))/total_mass
 	theta_accel = (g*sin(theta)-cos(theta)*temp)/(length_cable*(4/3-mass_pole*pow(cos(theta),2)/total_mass))
 	x_accel = temp-pole_mass_length*theta_accel*cos(theta)/total_mass
@@ -59,22 +57,21 @@ def physic_sim():
 	x += tau*x_dot
 	theta_dot += tau*theta_accel
 	theta += tau*theta_dot
-	avance_all_cartesian(x,theta, length_cable)
-	fen1.after(50, physic_sim)
+	# avance_all_cartesian(x,theta, length_cable)
+	# fen1.after(50, physic_sim)
+	return x, x_dot, theta, theta_dot
 	
 # gestionnaires d'événements : 
 def depl_gauche(): 
 	avance(-10, 0)
 def depl_cart_gauche():
-	global action
+	toto=0
 	#avance_cart(-10,0)
-	action += -0.1
 def depl_droite(): 
 	avance(10, 0)
 def depl_cart_droite():
-	global action
-	#avance_cart(10,0)
-	action += 0.1  
+	toto=0
+	#avance_cart(10,0) 
 def depl_haut(): 
 	avance(0, -10) 
 def depl_bas(): 
@@ -90,27 +87,35 @@ def clavier(event):
 	elif touche == "Down":
 		depl_bas()
 #------ Programme principal ------- # les variables suivantes seront utilisées de manière globale : 
+height = 800
+width = 1000
+widthrect1, heightrect1 = 80, 50
+xrect1, yrect1 = (width/2)-(widthrect1/2), 3*(height/4)-(heightrect1/2)
+x1, y1 = xrect1 + widthrect1/2, yrect1 - 30
+# x, x_dot, theta, theta_dot = 0,0,0,0
 
+# action = 0
   
-# coordonnées initiales # Création du widget principal ("maître") : 
-fen1 = Tk() 
-fen1.title("Pendule inversé v0.1") 
-# création des widgets "esclaves" : 
-can1 = Canvas(fen1,bg='white',height=1000,width=1000)
-can1.focus_set()
-can1.bind("<Key>",clavier)
-oval1 = can1.create_oval(x1,y1,x1+30,y1+30,width=1,fill='red')
-rect1 = can1.create_rectangle(xrect1, yrect1, xrect1+widthrect1, yrect1+heightrect1, fill="blue")
-line1 = can1.create_line(0,3*(height/4)+heightrect1, width, 3*(height/4)+heightrect1,width=2,fill="black")
-line2 = can1.create_line(x1+15,y1+15,xrect1+(widthrect1/2),yrect1,width=3, fill="red") 
-can1.pack(side=LEFT) 
-Button(fen1,text='Quitter',command=fen1.quit).pack(side=BOTTOM) 
-Button(fen1,text='Gauche',command=depl_gauche).pack() 
-Button(fen1,text='Droite',command=depl_droite).pack() 
-Button(fen1,text='Haut',command=depl_haut).pack() 
-Button(fen1,text='Bas',command=depl_bas).pack() 
-# démarrage du réceptionnaire d'évènements (boucle principale) : 
-fen1.after(50, physic_sim)
-fen1.after(1000, show_info)
-fen1.mainloop()
+#coordonnées initiales # Création du widget principal ("maître") : 
+# fen1 = Tk() 
+# fen1.title("Pendule inversé v0.1") 
+# # création des widgets "esclaves" : 
+# can1 = Canvas(fen1,bg='white',height=1000,width=1000)
+# can1.focus_set()
+# can1.bind("<Key>",clavier)
+# oval1 = can1.create_oval(x1,y1,x1+30,y1+30,width=1,fill='red')
+# rect1 = can1.create_rectangle(xrect1, yrect1, xrect1+widthrect1, yrect1+heightrect1, fill="blue")
+# line1 = can1.create_line(0,3*(height/4)+heightrect1, width, 3*(height/4)+heightrect1,width=2,fill="black")
+# line2 = can1.create_line(x1+15,y1+15,xrect1+(widthrect1/2),yrect1,width=3, fill="red") 
+# can1.pack(side=LEFT) 
+# Button(fen1,text='Quitter',command=fen1.quit).pack(side=BOTTOM) 
+# Button(fen1,text='Gauche',command=depl_gauche).pack() 
+# Button(fen1,text='Droite',command=depl_droite).pack() 
+# Button(fen1,text='Haut',command=depl_haut).pack() 
+# Button(fen1,text='Bas',command=depl_bas).pack() 
+# # # démarrage du réceptionnaire d'évènements (boucle principale) : 
+# fen1.after(50, physic_sim)
+# fen1.after(50, episode)
+# fen1.after(1000, show_info)
+# fen1.mainloop()
 
