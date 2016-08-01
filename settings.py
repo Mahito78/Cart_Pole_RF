@@ -11,4 +11,4 @@ x, x_dot, theta, theta_dot = 0,0,0,0
 
 action = 0
 
-episode(x,x_dot,theta,theta_dot)
+episode()

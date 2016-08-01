@@ -80,19 +80,16 @@ def states(x,x_dot,theta,theta_dot):
 	return zone;
 
 
-# if action >0:
-# 	force = force_magnitude
-# else:
-# 	force = -force_magnitude
-
-def episode(x,x_dot,theta,theta_dot):
+def episode():
 	global w,v,w_eligibilities,v_eligibilities
 	steps = 0
 	fails = 0
 	nb_presentation=0
+	[x,x_dot,theta,theta_dot]=reset()
 	zone=states(x,x_dot,theta,theta_dot)
-	while(steps<10000 and fails<MAX_FAILS):
+	while(fails<MAX_FAILS):
 		steps+=1
+		#fen1.after(50, episode(x,x_dot,theta,theta_dot))
 		y=rand()<random_selection(w[zone]) # y=heuristic = action
 		if(y==True) : 
 			action = 1
@@ -124,8 +121,8 @@ def episode(x,x_dot,theta,theta_dot):
 		for i in range(0, NB_ZONES,1):
 			w[i]+=ALPHA*heuristic_reinforcement*w_eligibilities[i]
 			v[i]+=BETA*heuristic_reinforcement*v_eligibilities[i]
-			if(v[i]<(-1.0)):
-				v[i]=v[i]
+			# if(v[i]<(-1.0)):
+			# 	v[i]=v[i]
 			if(failed):
 				w_eligibilities[i]=0.0
 				v_eligibilities[i]=0.0
