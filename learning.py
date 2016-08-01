@@ -84,11 +84,10 @@ def episode():
 	global w,v,w_eligibilities,v_eligibilities
 	steps = 0
 	fails = 0
-	nb_presentation=0
+	nb_presentation=1
 	[x,x_dot,theta,theta_dot]=reset()
 	zone=states(x,x_dot,theta,theta_dot)
 	while(fails<MAX_FAILS):
-		steps+=1
 		#fen1.after(50, episode(x,x_dot,theta,theta_dot))
 		y=rand()<random_selection(w[zone]) # y=heuristic = action
 		if(y==True) : 
@@ -104,13 +103,18 @@ def episode():
 			fails+=1 ;
 			failed = True
 			print(steps)
+			fichier = open("toto.txt", "a")
+			a=str(nb_presentation)+'\t'+str(steps)+'\n'
+			fichier.write(a)
 			steps=0
+			nb_presentation+=1
 			[x,x_dot,theta,theta_dot]=reset()
 			zone=states(x,x_dot,theta,theta_dot)
 			r=-1.0
 			p=0.0
 		else:
 			failed=False 
+			steps+=1
 			r=0
 			p=v[zone]
 
@@ -129,3 +133,4 @@ def episode():
 			else:
 				w_eligibilities[i]*=LAMBDAw
 				v_eligibilities[i]*=LAMBDAv
+	fichier.close()

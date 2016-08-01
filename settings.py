@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from learning import *
+from threading import Thread
 
 
 height = 800
